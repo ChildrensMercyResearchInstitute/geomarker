@@ -1,0 +1,13 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: geomarker-pvc-blob
+  namespace: geomarker
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: geomarker-pv-blob
+  storageClassName: azureblob-nfs-premium

@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: geomarker-web
+  namespace: geomarker
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: geomarker-web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geomarker-auth
+  namespace: geomarker
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: geomarker-auth
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geomarker-depindex
+  namespace: geomarker
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: geomarker-depindex
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geomarker-geocode
+  namespace: geomarker
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: geomarker-geocode
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geomarker-drivetime
+  namespace: geomarker
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: geomarker-drivetime
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geomarker-censusblockgroup
+  namespace: geomarker
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: geomarker-censusblockgroup

@@ -1,0 +1,111 @@
+version: '3.4'
+
+services:
+  geomarker.frontiers.geocode:
+    env_file:
+      - DevEnv/docker-compose.service.env
+    environment:
+      - LogFile=logs/geomarker-geocode-{Date}.txt
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/data/geocode:/app/tmp
+      - ${APPDATA}/ASP.NET/logs/geocode:/app/logs
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.GeoCode/Dockerfile
+    networks:
+      - geomarker-network
+    deploy:
+      restart_policy:
+        condition: always
+
+  geomarker.frontiers.web:
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.Web/Dockerfile
+    env_file:
+      - DevEnv/docker-compose.web.env
+    environment:
+      - LogFile=logs/geomarker-web-{Date}.txt
+    ports:
+      - "50003:80"
+      - "50004:443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/logs/web:/app/logs
+      - ./AppSetting/appsettings.json:/app/appsettings.json
+   
+    networks:
+      - geomarker-network
+    depends_on:
+      - geomarker.frontiers.geocode      
+      - geomarker.frontiers.censusblockgroup
+      - geomarker.frontiers.drivetime
+      - geomarker.frontiers.deprivationindex
+    deploy:
+      restart_policy:
+        condition: always
+
+  geomarker.frontiers.censusblockgroup:
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.CensusBlockGroup/Dockerfile
+    env_file:
+      - DevEnv/docker-compose.service.env
+    networks:
+      - geomarker-network
+    environment:
+      - LogFile=logs/geomarker-censusblockgroup-{Date}.txt
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/data/censusblockgroup:/app/tmp
+      - ${APPDATA}/ASP.NET/logs/censusblockgroup:/app/logs
+    deploy:
+      restart_policy:
+        condition: always
+  
+  geomarker.frontiers.drivetime:
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.DriveTime/Dockerfile
+    env_file:
+      - DevEnv/docker-compose.service.env
+    networks:
+      - geomarker-network
+    environment:
+      - LogFile=logs/geomarker-drivetime-{Date}.txt
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/data/drivetime:/app/tmp
+      - ${APPDATA}/ASP.NET/logs/drivetime:/app/logs
+    deploy:
+      restart_policy:
+        condition: always
+
+  geomarker.frontiers.deprivationindex:
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.DeprivationIndex/Dockerfile
+    networks:
+      - geomarker-network
+    env_file:
+      - DevEnv/docker-compose.service.env
+    environment:
+      - LogFile=logs/geomarker-depindex-{Date}.txt
+    deploy:
+      restart_policy:
+        condition: always
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/data/depindex:/app/tmp
+      - ${APPDATA}/ASP.NET/logs/depindex:/app/logs
+ 
+networks:
+  geomarker-network:    
+    name: site-bridge-network
+    external: true

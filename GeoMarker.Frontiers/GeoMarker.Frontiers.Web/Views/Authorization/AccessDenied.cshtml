@@ -1,0 +1,21 @@
+﻿@using Microsoft.AspNetCore.Html
+@{
+    ViewData["Title"] = "User Status Page";
+}
+@model AuthorizationFailureViewModel
+<div style="height: fit-content; width: 100%;">    
+    @if (Model.IsAdminAccessAttempt)
+    {
+        <h2>Administrative access is required for this page. </h2>
+        <div class="alert alert-danger">            
+            @(new HtmlString(@Company.SupportContactInformation))
+        </div>
+    }
+    else
+    {
+        <h2>You currently don't have access to GeoMarker</h2>
+        <div class="alert alert-primary">
+            @(new HtmlString(@Company.SupportContactInformation))
+        </div>
+    }
+</div>

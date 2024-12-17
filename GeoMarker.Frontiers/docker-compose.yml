@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+  geomarker.frontiers.geocode:
+    image: geomarker.frontiers.geocode
+    container_name: geomarker.frontiers.geocode
+
+  geomarker.frontiers.web:
+    image: geomarker.frontiers.web
+    container_name: geomarker.frontiers.web
+   
+  geomarker.frontiers.censusblockgroup:
+    image: geomarker.frontiers.censusblockgroup
+    container_name: geomarker.frontiers.censusblockgroup   
+
+  geomarker.frontiers.drivetime:
+    image: geomarker.frontiers.drivetime
+    container_name: geomarker.frontiers.drivetime
+
+  geomarker.frontiers.deprivationindex:
+    image: geomarker.frontiers.deprivationindex
+    container_name: geomarker.frontiers.deprivationindex
+
+    

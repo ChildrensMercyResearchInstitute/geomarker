@@ -1,0 +1,142 @@
+name: GeoMarker Frontiers Production Deployment
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: RIIS/PipelineTemplates
+
+parameters:
+  - name: applyConfigmaps
+    displayName: Apply ConfigMaps
+    type: boolean
+    default: true
+  - name: applyDeployments
+    displayName: Apply Deployments
+    type: boolean
+    default: true
+  - name: applyServices
+    displayName: Apply Services
+    type: boolean
+    default: true
+  - name: applyIngresses
+    displayName: Apply Ingresses
+    type: boolean
+    default: true
+  - name: applyVolumes
+    displayName: Apply Volumes
+    type: boolean
+    default: true
+  - name: applyVolumeClaims
+    displayName: Apply Volume Claims
+    type: boolean
+    default: true
+
+extends:
+  template: templates/base.yml@templates
+  parameters:
+    agentPool:
+      name: Local Build Agent
+    environment: "GeoMarker Frontiers Production"
+    buildSteps:
+      - template: templates/netcorebuild.yml@templates
+    deployName: GeoMarkerFrontiersDeployment
+    deploySteps:
+      - checkout: self
+      - task: AzureCLI@2
+        displayName: 'Login to AKS'
+        condition: eq(variables.isMain, true)
+        inputs:
+          azureSubscription: 'Azure Deployment'
+          scriptType: 'ps'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            # Log in to Azure using the service principal
+            az login --service-principal -u $env:SP_APP_ID -p $env:SP_PASSWORD --tenant $env:SP_TENANT
+
+            # Set the desired Azure subscription
+            az account set -s $env:AZ_SUBSCRIPTION
+
+            # Install kubelogin if not already installed
+            if (-not (Get-Command kubelogin -ErrorAction SilentlyContinue)) {
+                Invoke-WebRequest -Uri https://github.com/Azure/kubelogin/releases/download/v0.0.10/kubelogin.zip -OutFile kubelogin.zip
+                Expand-Archive -Path kubelogin.zip -DestinationPath $env:TEMP
+                Move-Item -Path "$env:TEMP\kubelogin.exe" -Destination "$env:ProgramFiles\kubelogin\kubelogin.exe"
+                $env:Path += ";$env:ProgramFiles\kubelogin"
+            }
+
+            # Get AKS credentials using service principal
+            az aks get-credentials --resource-group '$env:AZ_RG' --name '$env:AZ_AKS_NAME' --overwrite-existing
+
+            # Convert kubeconfig to use azurecli for authentication
+            kubelogin convert-kubeconfig -l azurecli 
+        env:
+          SP_APP_ID: $(SP_APP_ID)
+          SP_PASSWORD: $(SP_PASSWORD)
+          SP_TENANT: $(SP_TENANT)
+      - task: Kubernetes@1
+        condition: and(succeeded(), eq(variables.isMain, true), eq(${{parameters.applyConfigmaps}}, 'true'))
+        inputs:
+          connectionType: "Azure Resource Manager"
+          azureSubscriptionEndpoint: "Azure Deployment"
+          azureResourceGroup: $(AZ_RG)
+          kubernetesCluster: $(AZ_AKS_NAME)
+          namespace: "geomarker"
+          command: "apply"
+          useConfigurationFile: true
+          configuration: "$(Build.SourcesDirectory)/GeoMarker.Frontiers/k8s/configmaps/geomarker-production-configmaps.yml"
+      - task: Kubernetes@1
+        condition: and(succeeded(), eq(variables.isMain, true),eq(${{parameters.applyDeployments}}, 'true'))
+        inputs:
+          connectionType: "Azure Resource Manager"
+          azureSubscriptionEndpoint: "Azure Deployment"
+          azureResourceGroup: $(AZ_RG)
+          kubernetesCluster: $(AZ_AKS_NAME)
+          namespace: "geomarker"
+          command: "apply"
+          useConfigurationFile: true
+          configuration: "$(Build.SourcesDirectory)/GeoMarker.Frontiers/k8s/deployments/geomarker-production-deployments.yml"
+      - task: Kubernetes@1
+        condition: and(succeeded(), eq(variables.isMain, true),eq(${{parameters.applyServices}}, 'true'))
+        inputs:
+          connectionType: "Azure Resource Manager"
+          azureSubscriptionEndpoint: "Azure Deployment"
+          azureResourceGroup: $(AZ_RG)
+          kubernetesCluster: $(AZ_AKS_NAME)
+          namespace: "geomarker"
+          command: "apply"
+          useConfigurationFile: true
+          configuration: "$(Build.SourcesDirectory)/GeoMarker.Frontiers/k8s/services/geomarker-production-services.yml"
+      - task: Kubernetes@1
+        condition: and(succeeded(), eq(variables.isMain, true),eq(${{parameters.applyIngresses}}, 'true'))
+        inputs:
+          connectionType: "Azure Resource Manager"
+          azureSubscriptionEndpoint: "Azure Deployment"
+          azureResourceGroup: $(AZ_RG)
+          kubernetesCluster: $(AZ_AKS_NAME)
+          namespace: "geomarker"
+          command: "apply"
+          useConfigurationFile: true
+          configuration: "$(Build.SourcesDirectory)/GeoMarker.Frontiers/k8s/ingresses/geomarker-production-ingresses.yml"
+      - task: Kubernetes@1
+        condition: and(succeeded(), eq(variables.isMain, true),eq(${{parameters.applyVolumes}}, 'true'))
+        inputs:
+          connectionType: "Azure Resource Manager"
+          azureSubscriptionEndpoint: "Azure Deployment"
+          azureResourceGroup: $(AZ_RG)
+          kubernetesCluster: $(AZ_AKS_NAME)
+          namespace: "geomarker"
+          command: "apply"
+          useConfigurationFile: true
+          configuration: "$(Build.SourcesDirectory)/GeoMarker.Frontiers/k8s/persistentvolume/geomarker-production-persistentvolumes.yml"
+      - task: Kubernetes@1
+        condition: and(succeeded(), eq(variables.isMain, true),eq(${{parameters.applyVolumeClaims}}, 'true'))
+        inputs:
+          connectionType: "Azure Resource Manager"
+          azureSubscriptionEndpoint: "Azure Deployment"
+          azureResourceGroup: $(AZ_RG)
+          kubernetesCluster: $(AZ_AKS_NAME)
+          namespace: "geomarker"
+          command: "apply"
+          useConfigurationFile: true
+          configuration: "$(Build.SourcesDirectory)/GeoMarker.Frontiers/k8s/persistentvolume/geomarker-production-persistentvolumeclaims.yml"

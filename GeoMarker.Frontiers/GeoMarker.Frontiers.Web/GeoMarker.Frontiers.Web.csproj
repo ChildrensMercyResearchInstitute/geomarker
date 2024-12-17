@@ -1,0 +1,86 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<ContainerDevelopmentMode>Regular</ContainerDevelopmentMode>
+		<UserSecretsId>75fe6a4c-d424-4c33-82e2-e383d2fa8578</UserSecretsId>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+	<PackageReference Include="LinqKit" Version="1.3.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="8.0.7">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.22.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NSwag.ApiDescription.Client" Version="13.20.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+
+	  <PackageReference Include="OpenIddict.AspNetCore" Version="5.7.0" />
+	  <PackageReference Include="OpenIddict.Quartz" Version="5.7.0" />
+	  <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
+	  <PackageReference Include="Quartz.Extensions.Hosting" Version="3.12.0" />
+	  <PackageReference Include="Quartz.Plugins" Version="3.12.0" />
+		<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.7.0" />
+	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
+	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.0" />	  
+	</ItemGroup>
+
+	<ItemGroup>
+		<OpenApiReference Include="OpenAPIs\geocode_swagger.json" ClassName="GeoCodeClient" CodeGenerator="NSwagCSharp" Namespace="GeoMarker.Frontiers.Web.Clients">
+			<Options>/UseHttpRequestMessageCreationMethod:true /ClientBaseClass:AuthenticationClient</Options>
+		</OpenApiReference>
+		<OpenApiReference Include="OpenAPIs\census_block_group_swagger.json" ClassName="CensusBlockGroupClient" CodeGenerator="NSwagCSharp" Namespace="GeoMarker.Frontiers.Web.Clients">
+			<Options>/ExcludedTypeNames:FileResponse,FileParameter,DeGaussAsyncResponse,DeGaussAsyncRequest,CommandStatus,DeGaussGeocodedJsonRecord /GenerateExceptionClasses:false /UseHttpRequestMessageCreationMethod:true /ClientBaseClass:AuthenticationClient</Options>
+		</OpenApiReference>
+		<OpenApiReference Include="OpenAPIs\dep_index_swagger.json" ClassName="DeprivationIndexClient" CodeGenerator="NSwagCSharp" Namespace="GeoMarker.Frontiers.Web.Clients">
+			<Options>/ExcludedTypeNames:FileResponse,FileParameter,DeGaussAsyncResponse,DeGaussAsyncRequest,CommandStatus,DeGaussGeocodedJsonRecord /GenerateExceptionClasses:false /UseHttpRequestMessageCreationMethod:true /ClientBaseClass:AuthenticationClient</Options>
+		</OpenApiReference>
+		<OpenApiReference Include="OpenAPIs\drivetime_swagger.json" ClassName="DriveTimeClient" CodeGenerator="NSwagCSharp" Namespace="GeoMarker.Frontiers.Web.Clients">
+			<Options>/ExcludedTypeNames:FileResponse,FileParameter,DeGaussAsyncResponse,DeGaussAsyncRequest,CommandStatus,DeGaussGeocodedJsonRecord /GenerateExceptionClasses:false /UseHttpRequestMessageCreationMethod:true /ClientBaseClass:AuthenticationClient</Options>
+		</OpenApiReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\GeoMarker.Frontiers.Core\GeoMarker.Frontiers.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Resources\Messages.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Messages.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Update="wwwroot\SampleFiles.zip">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="Resources\Messages.resx">
+			<Generator>PublicResXFileCodeGenerator</Generator>
+			<LastGenOutput>Messages.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="default_jobs.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk">
+  <PropertyGroup Label="Globals">
+    <ProjectVersion>2.1</ProjectVersion>
+    <ProjectGuid>e4e32dec-19f0-4c56-9cd9-0154fa504010</ProjectGuid>
+    <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
+    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
+    <DockerServiceName>geomarker.frontiers.geocode</DockerServiceName>
+    <DockerDevelopmentMode>Regular</DockerDevelopmentMode>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DockerTargetOS>Linux</DockerTargetOS>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="AppSetting\appsettings.json" />
+    <None Include="DevEnv\docker-compose.web.env" />
+    <None Include="docker-compose-acr.yml" /></None>
+    <None Include="DevEnv\docker-compose.service.env" />
+    <None Include="docker-compose.override.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+    <None Include="docker-compose.yml" />
+    <None Include=".dockerignore" />
+  </ItemGroup>
+</Project>

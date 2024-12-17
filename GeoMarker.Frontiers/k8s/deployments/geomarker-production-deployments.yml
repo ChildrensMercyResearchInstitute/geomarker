@@ -1,0 +1,503 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geomarker-auth
+  namespace: geomarker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geomarker-auth
+  template:
+    metadata:
+      labels:
+        app: geomarker-auth
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+        - name: geomarker-auth
+          image: containerregistry.azurecr.io/authserver:1.2.0
+          volumeMounts:
+            - name: geomarker-pemstore
+              mountPath: /etc/ssl/certs/carootkfprod.pem
+              subPath: carootkfprod.pem
+              readOnly: false
+            - name: azure-storage
+              mountPath: /app/appsettings.json
+              subPath: appsettings.json
+            - name: azure-storage
+              mountPath: /app/temp-keys
+              subPath: temp-keys
+            - name: azure-storage
+              mountPath: /etc/ssl/certs/authgeomarker.pfx
+              subPath: authgeomarker.pfx
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+            - name: COMPANY_NAME
+              value: Placeholder
+            - name: COMPANY_LOGO_URL
+              value: 
+            - name: COMPANY_LOGO_HEIGHT
+              value: "50"
+            - name: COMPANY_LOGO_WIDTH
+              value: "100"
+            - name: COMPANY_LOGO_POSITION
+              value: TopLeft
+            - name: DBServer
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-mysql-secrets
+                  key: MYSQL_HOST
+            - name: DBPort
+              value: "3306"
+            - name: DBUser
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-mysql-secrets
+                  key: MYSQL_USER
+            - name: DBPassword
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-mysql-secrets
+                  key: MYSQL_PASSWORD
+            - name: Database
+              value: GeoMarkerAuth
+            - name: SymmetricSecurityKey
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-auth-secrets
+                  key: SYMMETRIC_SECURITY_KEY
+            - name: SigningCertificatePassword
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-auth-secrets
+                  key: SigningCertificatePassword
+            - name: SigningCertificatePath
+              value: /etc/ssl/certs/authgeomarker.pfx
+            - name: UseSelfSignedSigningCert
+              value: "false"
+            - name: QuartzSchedulePath
+              value: ~/default_jobs.xml
+            - name: AuthUrl
+              value: https://auth.geomarker.example.com/
+            - name: ClientUrl
+              value: https://geomarker.example.com/
+            - name: EmailServiceType
+              value: Smtp
+            - name: EmailServiceFromEmail
+              value: geomarker@example.edu
+            - name: EmailServiceFromName
+              value: GeoMarker Service
+            - name: EmailServiceHost
+              value: 
+            - name: EmailServicePort
+              value: "587"
+            - name: EnableExternalLogin
+              value: "true"
+            - name: EnableIndividualLogin
+              value: "false"
+            - name: AzureAdButtonText
+              value: Azure Login
+            - name: AllowedOrigins__0
+              value: https://geomarker.example.com
+            - name: EXTERNAL_LOGIN_ID
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-azuread-secrets
+                  key: EXTERNAL_LOGIN_ID
+            - name: EXTERNAL_LOGIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-azuread-secrets
+                  key: EXTERNAL_LOGIN_SECRET
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-logging-secrets
+                  key: APPLICATIONINSIGHTS_CONNECTION_STRING
+            - name: QuartzSchedulePath
+              value: ~/default_jobs.xml
+          resources:
+            requests:
+              cpu: 100m
+              memory: 1Gi
+            limits:
+              cpu: 1
+              memory: 2Gi
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: geomarker-pemstore
+          configMap:
+            name: geomarker-pemstore
+        - name: azure-storage
+          persistentVolumeClaim:
+            claimName: geomarker-pvc-blob
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geomarker-web
+  namespace: geomarker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geomarker-web
+  template:
+    metadata:
+      labels:
+        app: geomarker-web
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+        - name: geomarker-web
+          image: containerregistry.azurecr.io/geomarker.frontiers.web:1.4.1
+          volumeMounts:
+            - name: geomarker-pemstore
+              mountPath: /etc/ssl/certs/carootkfprod.pem
+              subPath: carootkfprod.pem
+              readOnly: false
+            - name: azure-storage
+              mountPath: /app/appsettings.json
+              subPath: appsettings.json
+            - name: azure-storage
+              mountPath: /app/temp-keys
+              subPath: temp-keys
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+            - name: COMPANY_NAME
+              value: Placeholder
+            - name: COMPANY_LOGO_URL
+              value: 
+            - name: COMPANY_LOGO_HEIGHT
+              value: "50"
+            - name: COMPANY_LOGO_WIDTH
+              value: "100"
+            - name: COMPANY_LOGO_POSITION
+              value: TopLeft
+            - name: UserGuideLink
+              value: 
+            - name: DBServer
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-mysql-secrets
+                  key: MYSQL_HOST
+            - name: DBPort
+              value: "3306"
+            - name: DBUser
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-mysql-secrets
+                  key: MYSQL_USER
+            - name: DBPassword
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-mysql-secrets
+                  key: MYSQL_PASSWORD
+            - name: Database
+              value: GeoMarker
+            - name: SymmetricSecurityKey
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-auth-secrets
+                  key: SYMMETRIC_SECURITY_KEY
+            - name: AuthUrl
+              value: https://auth.geomarker.example.com/
+            - name: WebApplication__ClientUrl
+              value: https://geomarker.example.com/
+            - name: TZ
+              value: America/Chicago
+            - name: EmailServiceType
+              value: Smtp
+            - name: EmailServiceFromEmail
+              value: geomarker@example.edu
+            - name: EmailServiceFromName
+              value: GeoMarker Service
+            - name: EmailServiceHost
+              value: 
+            - name: EmailServicePort
+              value: "587"
+            - name: QuartzSchedulePath
+              value: ~/default_jobs.xml
+            - name: ServiceDiscovery__DriveTime
+              value: http://geomarker-drivetime.geomarker.svc.cluster.local
+            - name: ServiceDiscovery__DepIndex
+              value: http://geomarker-depindex.geomarker.svc.cluster.local
+            - name: ServiceDiscovery__GeoCode
+              value: http://geomarker-geocode.geomarker.svc.cluster.local
+            - name: ServiceDiscovery__CensusBlockGroup
+              value: http://geomarker-censusblockgroup.geomarker.svc.cluster.local
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-logging-secrets
+                  key: APPLICATIONINSIGHTS_CONNECTION_STRING
+          resources:
+            requests:
+              cpu: 100m
+              memory: 1Gi
+            limits:
+              cpu: 1
+              memory: 2Gi
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: geomarker-pemstore
+          configMap:
+            name: geomarker-pemstore
+        - name: azure-storage
+          persistentVolumeClaim:
+            claimName: geomarker-pvc-blob
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geomarker-depindex
+  namespace: geomarker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geomarker-depindex
+  template:
+    metadata:
+      labels:
+        app: geomarker-depindex
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+        - name: geomarker-depindex
+          image: containerregistry.azurecr.io/geomarker.frontiers.deprivationindex:1.3.0
+          volumeMounts:
+            - name: geomarker-pemstore
+              mountPath: /etc/ssl/certs/carootkfprod.pem
+              subPath: carootkfprod.pem
+              readOnly: false
+            - name: azure-storage
+              mountPath: /app/tmp
+              subPath: tmp
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+            - name: SymmetricSecurityKey
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-auth-secrets
+                  key: SYMMETRIC_SECURITY_KEY
+            - name: AuthUrl
+              value: https://auth.geomarker.example.com/
+            - name: QuartzSchedulePath
+              value: ~/default_jobs.xml
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-logging-secrets
+                  key: APPLICATIONINSIGHTS_CONNECTION_STRING
+          resources:
+            requests:
+              cpu: 100m
+              memory: 1Gi
+            limits:
+              cpu: 1
+              memory: 4Gi
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: geomarker-pemstore
+          configMap:
+            name: geomarker-pemstore
+        - name: azure-storage
+          persistentVolumeClaim:
+            claimName: geomarker-pvc-blob
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geomarker-geocode
+  namespace: geomarker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geomarker-geocode
+  template:
+    metadata:
+      labels:
+        app: geomarker-geocode
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+        - name: geomarker-geocode
+          image: containerregistry.azurecr.io/geomarker.frontiers.geocode:1.3.0
+          volumeMounts:
+            - name: geomarker-pemstore
+              mountPath: /etc/ssl/certs/carootkfprod.pem
+              subPath: carootkfprod.pem
+              readOnly: false
+            - name: azure-storage
+              mountPath: /app/tmp
+              subPath: tmp
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+            - name: SymmetricSecurityKey
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-auth-secrets
+                  key: SYMMETRIC_SECURITY_KEY
+            - name: AuthUrl
+              value: https://auth.geomarker.example.com/
+            - name: QuartzSchedulePath
+              value: ~/default_jobs.xml
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-logging-secrets
+                  key: APPLICATIONINSIGHTS_CONNECTION_STRING
+          resources:
+            requests:
+              cpu: 2
+              memory: 5Gi
+            limits:
+              cpu: 2
+              memory: 8Gi
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: geomarker-pemstore
+          configMap:
+            name: geomarker-pemstore
+        - name: azure-storage
+          persistentVolumeClaim:
+            claimName: geomarker-pvc-blob
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geomarker-drivetime
+  namespace: geomarker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geomarker-drivetime
+  template:
+    metadata:
+      labels:
+        app: geomarker-drivetime
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+        - name: geomarker-drivetime
+          image: containerregistry.azurecr.io/geomarker.frontiers.drivetime:1.3.1
+          volumeMounts:
+            - name: geomarker-pemstore
+              mountPath: /etc/ssl/certs/carootkfprod.pem
+              subPath: carootkfprod.pem
+              readOnly: false
+            - name: azure-storage
+              mountPath: /app/tmp
+              subPath: tmp
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+            - name: SymmetricSecurityKey
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-auth-secrets
+                  key: SYMMETRIC_SECURITY_KEY
+            - name: AuthUrl
+              value: https://auth.geomarker.example.com/
+            - name: QuartzSchedulePath
+              value: ~/default_jobs.xml
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-logging-secrets
+                  key: APPLICATIONINSIGHTS_CONNECTION_STRING
+          resources:
+            requests:
+              cpu: 100m
+              memory: 1Gi
+            limits:
+              cpu: 1
+              memory: 2Gi
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: geomarker-pemstore
+          configMap:
+            name: geomarker-pemstore
+        - name: azure-storage
+          persistentVolumeClaim:
+            claimName: geomarker-pvc-blob
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geomarker-censusblockgroup
+  namespace: geomarker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geomarker-censusblockgroup
+  template:
+    metadata:
+      labels:
+        app: geomarker-censusblockgroup
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+        - name: geomarker-censusblockgroup
+          image: containerregistry.azurecr.io/geomarker.frontiers.censusblockgroup:1.3.0
+          volumeMounts:
+            - name: geomarker-pemstore
+              mountPath: /etc/ssl/certs/carootkfprod.pem
+              subPath: carootkfprod.pem
+              readOnly: false
+            - name: azure-storage
+              mountPath: /app/tmp
+              subPath: tmp
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+            - name: SymmetricSecurityKey
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-auth-secrets
+                  key: SYMMETRIC_SECURITY_KEY
+            - name: AuthUrl
+              value: https://auth.geomarker.example.com/
+            - name: QuartzSchedulePath
+              value: ~/default_jobs.xml
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: geomarker-logging-secrets
+                  key: APPLICATIONINSIGHTS_CONNECTION_STRING
+          resources:
+            requests:
+              cpu: 100m
+              memory: 5Gi
+            limits:
+              cpu: 1
+              memory: 8Gi
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: geomarker-pemstore
+          configMap:
+            name: geomarker-pemstore
+        - name: azure-storage
+          persistentVolumeClaim:
+            claimName: geomarker-pvc-blob

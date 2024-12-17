@@ -1,0 +1,46 @@
+parameters:
+  - name: override
+    displayName: Override Branch Deployment
+    type: boolean
+    default: false
+
+variables:
+  webVersionNumber: 0.0.0
+  isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  isPullRequest: $[eq(variables['Build.Reason'], 'PullRequest')]
+
+stages:
+- stage: DeployProductionWeb
+  condition: or(and(eq(variables.isMain, true), eq(variables.isPullRequest, false)), eq(${{ parameters.override }}, true))
+  jobs:
+  - deployment: ProductionDeploymentWeb
+    displayName: Production Deployment of Web Service
+    pool:
+      name: Local Build Agent
+    environment: 'GeoMarker Frontiers Production - ACR'
+    workspace:
+      clean: all
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - powershell: |
+                $WEBVERSION = Get-Content "$Env:BUILD_SOURCESDIRECTORY/GeoMarker.Frontiers/GeoMarker.Frontiers.Web/VERSION"
+                Write-Host "##vso[task.setvariable variable=webVersionNumber;]$WEBVERSION"
+          - task: Docker@2
+            displayName: 'Login to ACR'
+            inputs:
+              containerRegistry: $(AZ_ACR)
+              command: 'login'
+          - task: Docker@2
+            displayName: 'Build and Push Web'
+            inputs:
+              command: 'buildAndPush'
+              containerRegistry: $(AZ_ACR)
+              repository: 'geomarker.frontiers.web'
+              Dockerfile: '$(Build.SourcesDirectory)/GeoMarker.Frontiers/GeoMarker.Frontiers.Web/Dockerfile'
+              buildContext: '$(Build.SourcesDirectory)/GeoMarker.Frontiers'
+              tags: |
+                 latest
+                 $(webVersionNumber)

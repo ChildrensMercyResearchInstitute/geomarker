@@ -1,0 +1,18 @@
+jobs:
+- job: BuildGeoCode
+  displayName: Build  GeoCode Docker Image
+  pool:
+    name: Local Build Agent
+  workspace:
+    clean: all
+  steps:
+    - checkout: self
+    - task: Docker@2
+      displayName: "Build GeoCode"
+      inputs:
+        command: "build"
+        repository: "geomarker.frontiers.geocode"
+        Dockerfile: "$(Build.SourcesDirectory)/GeoMarker.Frontiers/GeoMarker.Frontiers.GeoCode/Dockerfile"
+        buildContext: "$(Build.SourcesDirectory)/GeoMarker.Frontiers"
+        tags: latest
+
