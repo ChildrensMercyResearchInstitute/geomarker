@@ -1,0 +1,221 @@
+/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+header {
+    background-color: #005cb9;
+    color: #e5e5e5;
+}
+
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+}
+
+a.copy-to-clipboard {
+    text-decoration: none;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.footer a {
+    color: #e9ecef !important;
+    text-decoration: underline;
+}
+
+.footer a:hover {
+    color: #ced4da !important;
+    text-decoration: underline;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+}
+
+.footer {
+    background-color: #005cb9;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 30px; /* Vertically center the text there */
+}
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    text-align: left;
+    padding: 8px;
+}
+
+.dropdown-menu {
+    width: 100%;
+    width: auto;
+    min-width: 100%;
+}
+
+.oi-check {
+    color: green;
+    font-family: Arial, sans-serif !important;
+}
+.oi-check:before {
+    font-family: Icons;
+}
+.oi-x {
+    color: red;
+    font-family: Arial, sans-serif !important;
+}
+.oi-x:before {
+    font-family: Icons;
+}
+
+.info-tooltip {
+    cursor: pointer;
+    vertical-align: baseline;
+}
+
+.hiddenRow {
+    padding: 0 !important;
+    border: none !important;
+}
+
+.table-fixed {
+    table-layout: fixed;
+    word-wrap: anywhere;
+}
+
+.subtable {
+    background-color: #dddddd;
+    margin: 0;
+    word-wrap: anywhere;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.sticky-table thead, .sticky-table tfoot {
+    position: sticky;
+}
+
+.sticky-table thead {
+    inset-block-start: 0;
+    border-bottom: 1px solid black;
+}
+
+.sticky-table tfoot {
+    inset-block-end: 0;
+    border-top: 1px solid black;
+}
+
+.sticky-table th {
+    background: white;
+}
+
+.btn-outline-secondary {
+    width: 100%;
+    text-align: left;
+    color: black;
+    border-color: #ced4da;
+}
+
+.btn-outline-secondary:after {
+    margin-top: 0.65em;
+    float: right;
+    color: black;
+}
+
+.btn-outline-secondary:focus,.btn-outline-secondary.dropdown-toggle.show:focus {
+    color: #212529;
+    background-color: #fff;
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+}
+
+.btn-outline-secondary.dropdown-toggle.show, .btn-outline-secondary:hover {
+    color: black;
+    background-color: white;
+}
+
+.dropdown-menu, .dropdown-item:active {
+    background-color: white;
+    color: black;
+}
+
+.dropdown-item, .dropdown-item label.form-check-label, .admin-table-header, .form-check-input {
+    cursor: pointer;
+}
+
+.dropdown-item {
+    padding-left: 5px;
+}
+
+.admin-table-sort {
+    display: none;
+}
+
+.admin-table-sort.active {
+    display: inline;
+}
+
+.page-item.active .page-link {
+    background-color: #1b6ec2;
+    border-color: #0a58ca;
+}
+
+.page-list button {
+    background-color: #1b6ec2;
+    border-color: #0a58ca;
+}

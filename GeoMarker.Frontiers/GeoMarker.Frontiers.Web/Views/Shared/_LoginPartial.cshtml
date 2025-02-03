@@ -1,0 +1,23 @@
+﻿@using System.Security.Claims;
+<ul class="navbar-nav">
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <li class="nav-item">
+            <p class="nav-link text-light" id="logged-in-user" style="margin-bottom: 0;"
+           data-user-id="@User.Claims.First(x => x.Type == ClaimTypes.Name).Value">
+                @User.Claims.First(x => x.Type == ClaimTypes.Name).Value
+            </p>
+        </li>
+        <li class="nav-item">
+            <form asp-action="Logout" asp-controller="Authentication" method="post" id="logout-form">
+                <button type="submit" class="nav-link btn btn-link text-white">Sign out&nbsp <span class="oi oi-account-logout"></span></button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-white" asp-controller="Authentication" asp-action="Login"><span class="oi oi-account-login"></span> &nbsp  Sign in</a>
+        </li>
+    }
+</ul>

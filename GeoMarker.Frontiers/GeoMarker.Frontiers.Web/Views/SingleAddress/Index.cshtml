@@ -1,0 +1,232 @@
+﻿@model SingleAddressViewModel
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "GeoMarker-Frontiers | Single Address";
+}
+<div class="shadow-lg p-3 mb-5 bg-white rounded">
+    <h3 class="text-center">GeoMarker Single Address</h3>
+    <hr />
+    @if (Model.UserRequests == null)
+    {
+        <div class="alert alert-danger text-center" id="no-user-id" role="alert">
+            No user ID was found for this session, @Company.SupportContactInformation
+        </div>
+    }
+    else
+    {        
+        <form name="singleAddressForm" id="geoMarkerForm" method="post">
+            <div class="row p-1">
+                <div class="col-3"></div>
+                <div class="col-1">
+                    <label>
+                        Address
+                        <img src="~/icons/circle-i-blue.svg" class="info-tooltip" data-tooltip-text="For best results, follow this pattern: 'Number Street City State Zip' (e.g. 3333 Burnet Ave Cincinnati OH 45229) <a href='https://degauss.org/geocoder/#input-address-data-formatting' target='_blank'>More guidelines</a>" />
+                    </label>
+                </div>
+                <div class="col-4">
+                    <input type="text" class="form-control" asp-for="Address">
+                    <span asp-validation-for="Address" class="text-danger" id="Address-error"></span>
+                </div>
+                <div class="col-4"></div>
+            </div>              
+
+            <div class="row p-1">
+                <div class="col-3"></div>
+                <div class="col-1">
+                    <label>Type</label>
+                </div>
+                <div class="col-8">                   
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="driveTime" value="driveTime" name="Types" checked="@(Model.Types.Contains(DeGaussRequestType.DriveTime))" disabled="@(!Model.DriveTimeApiHealthy)" onchange="handleOnTypeChange()" />
+                        <label class="form-check-label" for="driveTime">
+                            Drive Time
+                            <img src="~/icons/circle-i-blue.svg" class="info-tooltip" data-tooltip-text="Adds the drive time and distance to a specified care center. <a href='https://degauss.org/drivetime/' target='_blank'>Documentation</a>" />
+                        </label>&nbsp;&nbsp
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="deprivationIndex" value="deprivationIndex" name="Types" checked="@(Model.Types.Contains(DeGaussRequestType.DeprivationIndex))" disabled="@(!Model.DeprivationIndexApiHealthy)" onchange="handleOnTypeChange()" />
+                        <label class="form-check-label" for="deprivationIndex">
+                            Deprivation Index
+                            <img src="~/icons/circle-i-blue.svg" class="info-tooltip" data-tooltip-text="Adds six household measures and a calculated index of the measures. <a href='https://degauss.org/dep_index/' target='_blank'>Documentation</a>" />
+                        </label>&nbsp;&nbsp
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="censusBlockGroup" value="censusBlockGroup" name="Types" checked="@(Model.Types.Contains(DeGaussRequestType.CensusBlockGroup))" disabled="@(!Model.CensusBlockApiHealthy)" onchange="handleOnTypeChange()" />
+                        <label class="form-check-label" for="censusBlockGroup">
+                            Census Block Group
+                            <img src="~/icons/circle-i-blue.svg" class="info-tooltip" data-tooltip-text="Adds census block group and census tract for each address. <a href='https://degauss.org/census_block_group/' target='_blank'>Documentation</a>" />
+                        </label>
+                    </div>                    
+                </div>
+            </div>           
+            @{
+                var showSite = Model.Types.Contains(DeGaussRequestType.DriveTime) ? Html.Raw("") : Html.Raw("display: none");
+            }
+            <div class="row p-1" id="site-input" style="@(showSite)">
+                <div class="col-3"></div>
+                <div class="col-1">
+                    <label>Site</label>
+                </div>
+                <div class="col-4">
+                    @Html.DropDownListFor(model => model.Site, Model.SiteOptions, "Please Select", new { @class = "form-select small", @id = "site-field" })
+                    <span asp-validation-for="Site" class="text-danger" id="Site-error"></span>
+                </div>
+                <div class="col-4"></div>
+            </div>
+            @{
+                var showYear = Model.Types.Contains(DeGaussRequestType.CensusBlockGroup) ? Html.Raw("") : Html.Raw("display: none");
+            }
+            <div class="row p-1" id="year-input" style="@(showYear)">
+                <div class="col-3"></div>
+                <div class="col-1">
+                    <label>Year</label>
+                </div>
+                <div class="col-4">
+                    @Html.DropDownListFor(model => model.Year, Model.YearOptions, "Please Select", new { @class = "form-select small", @id = "year-field" })
+                    <span asp-validation-for="Year" class="text-danger" id="Year-error"></span>
+                </div>
+                <div class="col-4"></div>
+            </div>
+
+            <div class="row p-1">
+                <div class="col-5">
+                </div>
+                <div class="col-2">
+                    <div id="submitDiv" style="text-align: center">
+                        <button type="submit" class="btn-primary btn" id="submitGeoMarkerForm">Submit</button>
+                    </div>
+                    <div id="loadingDiv" style="display: none;">
+                        <button class="btn btn-primary" type="button" id="loadingConnect" disabled="">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="sr-only">Loading...</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-5">
+                </div>
+            </div>
+        </form>     
+      
+    }
+
+    @if (!String.IsNullOrEmpty(Model.ResponseMessage))
+    {
+        <div class="alert @Model.GetMessageClass() alert-dismissible fade show text-center" id="result" role="alert">
+            @Model.ResponseMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <hr />
+    <style>
+        th {
+            text-align: center;
+        }
+
+        td {
+            text-align: center;
+        }
+    </style>
+
+    <h4 class="text-center">History</h4>
+
+    @await Component.InvokeAsync("SingleAddressHistoryTable", new {
+    model = Model
+    })
+</div>
+
+@section Scripts
+    {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        handleOnTypeChange = function () { 
+            if ($("#driveTime").prop("checked"))
+                $("#site-input").show()
+            else {
+                $("#site-field").val("")
+                $("#site-input").hide()
+            }
+
+            if ($("#censusBlockGroup").prop("checked"))
+                $("#year-input").show()
+            else {
+                $("#year-field").val("");
+                $("#year-input").hide()
+            }
+        }
+
+        $("#site-field").on("change", function () {
+            if ($(this).val() == "") {
+                $("#Site-error").show();
+                $("#Site-error").text("Site is required.");
+            }
+            else
+                $("#Site-error").hide()
+        });
+
+        $("#year-field").on("change", function () {
+            if ($(this).val() == "") {
+                $("#Year-error").show();
+                $("#Year-error").text("Year is required.");
+            }
+            else
+                $("#Year-error").hide()
+        });
+        $(document).ready(function () {
+            if ($(".history-data").length == 0)
+                $("#singleAddressHistory").hide();
+        });
+
+        copyToClipboard = function (guid) {
+            $(".oi-check").hide();
+            $(".oi-x").hide();
+            $.ajax({
+                type: "GET",
+                url: "/SingleAddress/GetGeocodedAddress",
+                data: { "guid": guid },
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    navigator.clipboard.writeText(response);
+                    $("#check-" + guid).show();
+                },
+                error: function (textStatus, errorThrown) {
+                    $("#x-" + guid).show();
+                }
+            })
+        }
+
+
+        $("#geoMarkerForm").on("submit", function () {
+            var validationFailed = false;
+
+            if (!$.trim($("#Address").val())) {
+                $("#Address-error").show();
+                $("#Address-error").text("Address is required.");
+                validationFailed = true;
+            }
+
+            if ($("#driveTime").prop("checked") && $("#site-field").val() == "") {
+                $("#Site-error").show();
+                $("#Site-error").text("Site is required.");
+                validationFailed = true;
+            }
+
+            if ($("#censusBlockGroup").prop("checked") && $("#year-field").val() == "") {
+                $("#Year-error").show();
+                $("#Year-error").text("Year is required.");
+                validationFailed = true;
+            }
+
+            if (validationFailed)
+                return false;
+
+            $("#Address-error").hide();
+            $("#Site-error").hide();
+            $("#Year-error").hide();
+            $("#submitDiv").hide();
+            $("#loadingDiv").show();
+        });
+    </script>
+}

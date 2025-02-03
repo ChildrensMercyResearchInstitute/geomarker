@@ -1,0 +1,93 @@
+﻿@using System.Security.Claims;
+@model AdminViewModel
+@{
+    ViewData["Title"] = "Admin Stats";
+}
+<div class="shadow-lg p-3 mb-5 bg-white rounded">
+    <h3 class="text-center">GeoMarker Admin Stats</h3>
+    <hr />
+    <form name="adminFilter" id="geoMarkerForm" method="post">
+        <div class="row p-1">
+            <div class="col-2">
+                <label>Uploaded Start Date</label>
+                <input type="date" class="form-control" asp-for="StartDate">
+                @Html.ValidationMessage("StartDate",null,new { @class = "text-danger" })
+            </div>
+            <div class="col-2">
+                <label>Uploaded End Date</label>
+                <input type="date" class="form-control" asp-for="EndDate">
+                @Html.ValidationMessage("EndDate",null,new { @class = "text-danger" })
+            </div>
+            <div class="col-2">
+                <label>User Ids</label>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="true">
+                        0 Selected
+                    </button>
+                    <ul class="dropdown-menu">
+                        @foreach (var id in Model.UserIdOptions)
+                        {
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <input class="form-check-input" type="checkbox" id="@id" value="@id" name="UserIds" checked="@Model.UserIds.Contains(id)" />
+                                    <label class="form-check-label">@id</label>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="col-2">
+                <label>Request Types</label>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="true">
+                        0 Selected
+                    </button>
+                    <ul class="dropdown-menu">
+                        @foreach (var type in Model.RequestTypeOptions)
+                        {
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <input class="form-check-input" type="checkbox" id="@type" value="@type" name="RequestTypes" checked="@Model.RequestTypes.Contains(type)" />
+                                    <label class="form-check-label">@type</label>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="col-2">
+                <label>Request Format</label>
+                @Html.DropDownListFor(model => model.RequestFormat, Model.RequestFormatOptions, "All Formats", new {@class="form-select small", @id="user-ids-field"})
+            </div>
+            <div class="col-1" style="margin-top: 24px;">
+                <div id="submitDiv" style="text-align: center">
+                    <button type="submit" class="btn-primary btn" id="submitGeoMarkerForm">Filter</button>
+                </div>
+                <div id="loadingDiv" style="display: none;">
+                    <button class="btn btn-primary" type="button" id="loadingConnect" disabled="">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="sr-only">Loading...</span>
+                    </button>
+                </div>
+            </div>
+            <div class="col-1"></div>
+        </div><br />
+    </form>
+    @await Component.InvokeAsync("StatsTable", new {model = Model})
+
+    <script>
+        $(".dropdown-item").on("click", function (e) {
+            if (e.target == this || $(e.target).hasClass("form-check-label")) {
+                let $checkbox = $(this).find("input")
+                $checkbox.prop("checked", !$checkbox.prop("checked")).trigger("change")
+                e.stopPropagation();
+            }
+        })
+
+        $(".form-check-input").on("change", function () {
+            $dropdownMenu = $(this).closest(".dropdown-menu")
+            $dropdownMenu.siblings(".dropdown-toggle").text($dropdownMenu.find(".form-check-input:checked").length + " Selected")
+        }).trigger("change")
+    </script>
+</div>

@@ -1,0 +1,32 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "geomarker.frontiers.web",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}",
+      "serviceActions": {
+        "geomarker.frontiers.censusblockgroup": "StartDebugging",
+        "geomarker.frontiers.deprivationindex": "StartDebugging",
+        "geomarker.frontiers.drivetime": "StartDebugging",
+        "geomarker.frontiers.geocode": "StartDebugging",
+        "geomarker.frontiers.web": "StartDebugging"
+      }
+    },
+    "Docker Compose Sanbox": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "geomarker.frontiers.web",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}",
+      "serviceActions": {
+        "geomarker.frontiers.censusblockgroup": "StartDebugging",
+        "geomarker.frontiers.deprivationindex": "StartDebugging",
+        "geomarker.frontiers.drivetime": "StartDebugging",
+        "geomarker.frontiers.geocode": "StartDebugging",
+        "geomarker.frontiers.web": "StartDebugging"
+      }
+    }
+  }
+}

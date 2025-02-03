@@ -1,0 +1,32 @@
+﻿@model SingleAddressViewModel
+@using GeoMarker.Frontiers.Web.Models
+@using GeoMarker.Frontiers.Web.Views
+@using GeoMarker.Frontiers.Web.Clients
+
+<table style="width: 40%; margin: auto" class="table table-fixed" id="singleAddressHistory">
+    <thead>
+    <tr>
+        <th>Submitted</th>
+        <th>Copy to Clipboard</th>
+    </tr>
+    </thead>
+    <tbody id="history-body">
+        @if (Model.UserRequests != null && Model.UserRequests.Any())
+        {
+            @foreach (var userRequest in Model.UserRequests)
+            {
+                <tr class="history-data">
+                    <td>@userRequest.GetUploadDateTimeString()</td>
+                    <td>
+                        @{var id = @userRequest.Guid;}
+                        <a href="#" class="copy-to-clipboard" onclick="copyToClipboard('@id');">
+                            <span class="oi oi-clipboard"></span>
+                        </a>
+                        <span class="oi oi-check" id="check-@id" style="display: none;"> Copied</span>
+                        <span class="oi oi-x" id="x-@id" style="display: none;"> An Error Occurred</span>
+                    </td>
+                </tr>
+            }   
+        }
+    </tbody>
+</table>

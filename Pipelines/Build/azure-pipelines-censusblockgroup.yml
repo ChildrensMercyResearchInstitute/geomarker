@@ -1,0 +1,17 @@
+jobs:
+- job: BuildCensusBlockGroup
+  displayName: Build CensusBlockGroup Docker Image
+  pool:
+    name: Local Build Agent
+  workspace:
+    clean: all
+  steps:
+    - checkout: self
+    - task: Docker@2
+      displayName: "Build censusblockgroup"
+      inputs:
+        command: "build"
+        repository: "geomarker.frontiers.censusblockgroup"
+        Dockerfile: "$(Build.SourcesDirectory)/GeoMarker.Frontiers/GeoMarker.Frontiers.CensusBlockGroup/Dockerfile"
+        buildContext: "$(Build.SourcesDirectory)/GeoMarker.Frontiers"
+        tags: latest

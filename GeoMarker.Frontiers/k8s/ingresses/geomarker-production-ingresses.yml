@@ -1,0 +1,60 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-nginx-web
+  namespace: geomarker
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "64k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "8"
+    nginx.ingress.kubernetes.io/proxy-body-size: 25m
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+spec:
+  ingressClassName: internal-nginx
+  tls:
+    - hosts:
+        - geomarker.example.com
+      secretName: geomarker-tls-secrets
+  rules:
+    - host: "geomarker.example.com"
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: geomarker-web
+                port:
+                  number: 80
+            pathType: Prefix
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-nginx-auth
+  namespace: geomarker
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "64k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "8"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+spec:
+  ingressClassName: internal-nginx
+  tls:
+    - hosts:
+        - auth.geomarker.example.com
+      secretName: geomarker-auth-tls-secrets
+  rules:
+    - host: "auth.geomarker.example.com"
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: geomarker-auth
+                port:
+                  number: 80
+            pathType: Prefix

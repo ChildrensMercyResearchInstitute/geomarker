@@ -1,0 +1,60 @@
+﻿@model AdminViewModel
+
+<table class="table" data-toggle="table" data-pagination="true" data-sort-name="date" data-sort-order="desc">
+    <thead style="border-bottom: 1px solid black">
+        <tr>
+            <th style="width: 20%;" class="admin-table-header active" data-sortable="true" data-field="date" data-sorter="dateSorter">Uploaded</th>
+            <th style="width: 20%;" class="admin-table-header" data-sortable="true" data-field="userId">User Id</th>
+            <th style="width: 20%;" class="admin-table-header" data-sortable="true" data-field="addresses">Addresses</th>
+            <th style="width: 20%;" class="admin-table-header" data-sortable="true" data-field="type">Type</th>
+            <th style="width: 20%;" class="admin-table-header" data-sortable="true" data-field="time" data-sorter="processTimeSorter">Process Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            List<string> uniqUsers = new();
+            TimeSpan totalTime = new();
+        }
+        @foreach (RecordsProcessed record in Model.AllRecords)
+        {
+            <tr class="history-data">
+                <td style="width: 20%;">@record.GetUploadDateTimeString()</td>
+                <td style="width: 20%;">@record.UserId</td>
+                <td style="width: 20%;">@record.Records.ToString("N0")</td>
+                <td style="width: 20%;">@UserRequest.PascalCaseToHumanCase(record.RequestType) - @record.Format</td>
+                <td style="width: 20%;">@RecordsProcessed.TimeSpanToString(record.GetProcessTime(), record, true)</td>
+            </tr>
+            if (!string.IsNullOrEmpty(record.UserId) && !uniqUsers.Contains(record.UserId))
+                uniqUsers.Add(record.UserId);
+            totalTime += record.GetProcessTime();
+        }
+    </tbody>
+</table>
+<table class="table table-bordered">
+    <tfoot style="border-top: 1px solid black">
+        <tr id="admin-footer">
+            <th style="width: 20%;">@Model.AllRecords.Count.ToString("N0") Processes</th>
+            <th style="width: 20%;">@uniqUsers.Count.ToString("N0") Unique Users</th>
+            <th style="width: 20%;">@Model.ProcessedRecords().ToString("N0") Processed<br />@Model.ProcessingRecords().ToString("N0") Processing <br />@Model.FailedRecords().ToString("N0") Failed</th>
+            <th style="width: 20%;"></th>
+            <th style="width: 20%;">@RecordsProcessed.TimeSpanToString(totalTime)</th>
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+    function dateSorter(a, b) {
+        return new Date(a) - new Date(b)
+    }
+
+    function processTimeSorter(a, b) {
+        var valASpaces = a.split(" "), valBSpaces = b.split(" ")
+        if (valASpaces.length == 1 || valBSpaces.length == 1)
+            return a.toString().localeCompare(b);
+
+        for (i = 0; i <= 4; i += 2) {
+            if (valASpaces[i] != valBSpaces[i])
+                return parseInt(valASpaces[i]) - parseInt(valBSpaces[i])
+        }
+    }
+</script>

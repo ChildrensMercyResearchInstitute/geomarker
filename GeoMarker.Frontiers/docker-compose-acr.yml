@@ -1,0 +1,44 @@
+version: '3.4'
+
+services:
+  geomarker.frontiers.geocode:
+    image: geomarker.frontiers.geocode
+    container_name: geomarker.frontiers.geocode
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.GeoCode/Dockerfile
+
+  geomarker.frontiers.web:
+    image: geomarker.frontiers.web
+    container_name: geomarker.frontiers.web
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.Web/Dockerfile
+  
+  geomarker.frontiers.censusblockgroup:
+    image: geomarker.frontiers.censusblockgroup
+    container_name: geomarker.frontiers.censusblockgroup
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.CensusBlockGroup/Dockerfile
+
+  geomarker.frontiers.drivetime:
+    image: geomarker.frontiers.drivetime
+    container_name: geomarker.frontiers.drivetime
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.DriveTime/Dockerfile
+
+  geomarker.frontiers.deprivationindex:
+    image: geomarker.frontiers.deprivationindex
+    container_name: geomarker.frontiers.deprivationindex
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.DeprivationIndex/Dockerfile
+ 
+  geomarker.frontiers.authserver:
+    image: geomarker.frontiers.authserver
+    container_name: geomarker.frontiers.authserver
+    build:
+      context: .
+      dockerfile: ./GeoMarker.Frontiers.AuthServer/Dockerfile

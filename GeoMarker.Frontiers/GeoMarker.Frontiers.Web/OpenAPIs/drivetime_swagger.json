@@ -1,0 +1,494 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "GeoMarker Drive Time API",
+    "description": "API to get drive time and distance for given GeoCoded addresses and site.",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/GeoMarker/GetDriveTimes": {
+      "post": {
+        "tags": [
+          "DriveTime"
+        ],
+        "summary": "POST GetDriveTimes - Accepts GeoCoded csv file and site to generate .csv file containing drive_time in minutes and distable in meters.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "File",
+                  "Site"
+                ],
+                "type": "object",
+                "properties": {
+                  "Site": {
+                    "type": "string"
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "RequestGuid": {
+                    "type": "string"
+                  }
+                }
+              },
+              "encoding": {
+                "Site": {
+                  "style": "form"
+                },
+                "File": {
+                  "style": "form"
+                },
+                "RequestGuid": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/api/GeoMarker/StartGetDriveTimes": {
+      "post": {
+        "tags": [
+          "DriveTime"
+        ],
+        "summary": "POST StartDriveTimesAsync - Accepts GeoCoded csv file and site. Asynchronously generate .csv file containing drive_time in minutes and distable in meters.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "File",
+                  "Site"
+                ],
+                "type": "object",
+                "properties": {
+                  "Site": {
+                    "type": "string"
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "RequestGuid": {
+                    "type": "string"
+                  }
+                }
+              },
+              "encoding": {
+                "Site": {
+                  "style": "form"
+                },
+                "File": {
+                  "style": "form"
+                },
+                "RequestGuid": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeGaussAsyncResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeGaussAsyncResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeGaussAsyncResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/api/GeoMarker/GetDriveTimesStatus": {
+      "post": {
+        "tags": [
+          "DriveTime"
+        ],
+        "summary": "POST GetDriveTimesStatus - Get the status of a asynchronous drivetime operation.",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeGaussAsyncRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeGaussAsyncResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeGaussAsyncResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeGaussAsyncResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/api/GeoMarker/GetDriveTimesResult": {
+      "post": {
+        "tags": [
+          "DriveTime"
+        ],
+        "summary": "POST GetDriveTimesResult - Get the result of an asynchronous drivetime operation.",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeGaussAsyncRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/api/GeoMarker/GetDriveTimesJson": {
+      "post": {
+        "tags": [
+          "DriveTime"
+        ],
+        "summary": "POST GetDriveTimesJson - Accepts a json of lat and lon and a site and gets the drive times",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeGaussDriveTimesJsonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeGaussGeocodedJsonRecord"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeGaussGeocodedJsonRecord"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeGaussGeocodedJsonRecord"
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CommandStatus": {
+        "enum": [
+          "Processing",
+          "Rejected",
+          "Success",
+          "Failure",
+          "Duplicate",
+          "Queued",
+          "Removed",
+          "Requested",
+          "Unknown"
+        ],
+        "type": "string"
+      },
+      "DeGaussAsyncRequest": {
+        "required": [
+          "guid"
+        ],
+        "type": "object",
+        "properties": {
+          "guid": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeGaussAsyncResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/CommandStatus"
+          },
+          "guid": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeGaussDriveTimesJsonRequest": {
+        "required": [
+          "records",
+          "site"
+        ],
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeGaussGeocodedJsonRecord"
+            }
+          },
+          "site": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeGaussGeocodedJsonRecord": {
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "type": "object",
+        "properties": {
+          "lat": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "lon": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          },
+          "fips_county": {
+            "type": "string",
+            "nullable": true
+          },
+          "score": {
+            "type": "string",
+            "nullable": true
+          },
+          "precision": {
+            "type": "string",
+            "nullable": true
+          },
+          "drive_time": {
+            "type": "string",
+            "nullable": true
+          },
+          "distance": {
+            "type": "string",
+            "nullable": true
+          },
+          "census_tract_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "fraction_assisted_income": {
+            "type": "string",
+            "nullable": true
+          },
+          "fraction_high_school_edu": {
+            "type": "string",
+            "nullable": true
+          },
+          "median_income": {
+            "type": "string",
+            "nullable": true
+          },
+          "fraction_no_health_ins": {
+            "type": "string",
+            "nullable": true
+          },
+          "fraction_poverty": {
+            "type": "string",
+            "nullable": true
+          },
+          "fraction_vacant_housing": {
+            "type": "string",
+            "nullable": true
+          },
+          "dep_index": {
+            "type": "string",
+            "nullable": true
+          },
+          "census_block_group_id_1990": {
+            "type": "string",
+            "nullable": true
+          },
+          "census_block_group_id_2000": {
+            "type": "string",
+            "nullable": true
+          },
+          "census_block_group_id_2010": {
+            "type": "string",
+            "nullable": true
+          },
+          "census_block_group_id_2020": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "openIdConnect",
+        "description": "AzureAD Oauth Authorization"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.Extensions.Configuration
+@using GeoMarker.Frontiers.Web.Models.Configuration
+@using System.Security.Claims;
+@inject IConfiguration Configuration
+@inject IAuthorizationService AuthorizationService
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeoMarker @ViewData["Title"]</title>
+    @if (!string.IsNullOrEmpty(Company.FaviconUrl))
+    {
+        <link rel="icon" type="image/x-icon" href="@Company.FaviconUrl">
+    }
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-table/dist/css/bootstrap-table.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/GeoMarker.Frontiers.Web.styles.css" asp-append-version="true" />
+    <link href="~/lib/open-iconic/font/css/open-iconic-bootstrap.min.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+            <div class="container" style="height: 50px;">
+                @Html.Raw(Company.GetTopLogoImg(Company.Position.TopLeft))
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuItems" aria-controls="menuItems"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                @{string centerClass = Company.LogoPosition == Company.Position.TopCenter ? "position-absolute" : "";}
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between @centerClass">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="navbar-brand text-light" asp-controller="Home" asp-action="Index">GeoMarker <span style="font-size: 0.9em;">&nbsp<span class="oi oi-map-marker"></span>&nbsp Multi-Address</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="navbar-brand text-light" asp-controller="SingleAddress" asp-action="Index"><span style="font-size: 0.9em;"><span class="oi oi-map-marker"></span>&nbsp Single Address</span></a>
+                        </li>
+                        @if (User != null && (await AuthorizationService.AuthorizeAsync(User, "AdminUserPolicy")).Succeeded)
+                        {
+                            <li class="nav-item">
+                                <a class="navbar-brand text-light" asp-controller="Admin" asp-action="Index"><span style="font-size: 0.9em;"><span class="oi oi-graph"></span>&nbsp Admin Stats</span></a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                @Html.Raw(Company.GetTopLogoImg(Company.Position.TopCenter))
+                @Html.Raw(Company.GetTopLogoImg(Company.Position.TopRight))
+
+                <div>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-light">
+        <div class="container @Company.GetFooterStyle()">
+            @{string copyrightMargin = Company.BottomPosition() ? "-10px 0 -5px 0;\"" : "0";}
+            <p style="margin: @copyrightMargin">&copy;@DateTime.Now.Year @Company.Name
+                @if (!string.IsNullOrEmpty(Configuration["UserGuideLink"])) {
+                  <text> |</text> <a href = "@Configuration["UserGuideLink"]" target = "_blank"> User Guide</a>
+                }
+                <text> |</text> <a href="~/SampleFiles.zip" download title="Download Sample Files. Use sample_address_file.csv for geocoding and geocode_sample_address_file.csv for other requests.">Download Sample Files</a>
+            </p>
+            @Html.Raw(Company.GetBottomLogoImg())
+        </div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/bootstrap-table/dist/js/bootstrap-table.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

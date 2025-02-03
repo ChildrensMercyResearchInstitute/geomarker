@@ -1,0 +1,167 @@
+﻿@model MultiAddressIndexViewModel
+@using GeoMarker.Frontiers.Core.Models
+@using GeoMarker.Frontiers.Core.Models.Commands;
+@using GeoMarker.Frontiers.Web.Views
+@using GeoMarker.Frontiers.Web.Models
+@using static GeoMarker.Frontiers.Web.Models.MultiAddressIndexViewModel
+
+<table id="multiAddressHistory" class="table table-fixed">
+    <thead>
+        <tr>
+            <th style="width: 5%"></th>
+            <th style="width: 20%">Uploaded</th>
+            <th style="width: 20%">File Name</th>
+            <th style="width: 12.5%">Type</th>
+            <th style="width: 12.5%">Site</th>
+            <th style="width: 10%">Year</th>
+            <th style="width: 10%">Status</th>
+            <th style="width: 10%">Results</th>
+        </tr>
+    </thead>
+    <tbody id="history-body">
+        @if (Model.UserRequestGroups != null && Model.UserRequestGroups.Any())
+        {
+            int groupIndex = 0;
+            @foreach (var userRequestGroup in Model.UserRequestGroups)
+            {
+                var firstUserRequest = userRequestGroup.Value.First();
+                var lastUserRequest = userRequestGroup.Value.Last();
+                var count = userRequestGroup.Value.Count();
+                var successCount = userRequestGroup.Value.Where(x => x.Status.ToString().Equals(CommandStatus.Success.ToString())).Count();
+
+                if (userRequestGroup.Value.Count == 1)
+                {
+                    <tr class="history-data">
+                        <td></td>
+                        <td>@firstUserRequest.GetUploadDateTimeString()</td>
+                        <td>@firstUserRequest.InputFileName</td>
+                        <td>@UserRequest.PascalCaseToHumanCase(firstUserRequest.RequestType)</td>
+                        <td>@firstUserRequest.Site</td>
+                        <td>@firstUserRequest.Year</td>
+                        <td>@firstUserRequest.Status.ToString()</td>
+                        @if (firstUserRequest.Status.ToString().Equals(CommandStatus.Success.ToString()))
+                        {
+                            <td>
+                                <a href='@Url.Action("DownloadResponse", "Home", new { guid = firstUserRequest.Guid, model=Model})'>
+                                    <span class="oi oi-data-transfer-download"></span>
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                    </tr>
+                    continue;
+                }
+
+                // Render synthetic header row
+                string rowTarget = "#row_" + groupIndex.ToString();
+                string rowId = "row_" + groupIndex.ToString();
+                groupIndex++;
+                var site = userRequestGroup.Value.FirstOrDefault(r => r.RequestSubType == DeGaussRequestType.DriveTime.ToString())?.Site;
+                var year = userRequestGroup.Value.FirstOrDefault(r => r.RequestSubType == DeGaussRequestType.CensusBlockGroup.ToString())?.Year;
+
+                <tr class="history-data">
+                    <td style="vertical-align: bottom;">
+                        <button class="btn btn-group" data-bs-toggle="collapse" data-bs-target=@rowTarget>
+                            <span class="oi oi-menu"></span>
+                        </button>
+                    </td>
+                    <td style="vertical-align: bottom;">@firstUserRequest.GetUploadDateTimeString()</td>
+                    <td style ="vertical-align: bottom;">@firstUserRequest.InputFileName</td>
+                    <td style="vertical-align: bottom;">@UserRequest.PascalCaseToHumanCase(firstUserRequest.RequestType)</td>
+                    <td style="vertical-align: bottom;">@site</td>
+                    <td style="vertical-align: bottom;">@year</td>
+                    @if ((successCount > 0) && (lastUserRequest.Status.ToString().Equals(CommandStatus.Failure.ToString()) ||
+                                               lastUserRequest.Status.ToString().Equals(CommandStatus.Unknown.ToString())
+                        ))
+                    {
+                        <td style="vertical-align: bottom;">Partial Success (@successCount/@count)</td>
+                    }
+                    else if ((successCount == 0) && (lastUserRequest.Status.ToString().Equals(CommandStatus.Failure.ToString()) ||
+                                                    lastUserRequest.Status.ToString().Equals(CommandStatus.Unknown.ToString())
+                            ))
+                    {
+                        <td style="vertical-align: bottom;">@lastUserRequest.Status.ToString()</td>
+                    }
+                    else
+                    {
+                        <td style="vertical-align: bottom;">@lastUserRequest.Status.ToString() (@successCount/@count)</td>
+                    }
+
+                    @if (lastUserRequest.Status.ToString().Equals(CommandStatus.Success.ToString()))
+                    {
+                        <td>
+                            <a href='@Url.Action("DownloadResponse", "Home", new { guid = lastUserRequest.Guid, model=Model})'>
+                                <span class="oi oi-data-transfer-download"></span>
+                            </a>
+                        </td>
+                    }
+                    else if ((successCount > 0) && (lastUserRequest.Status.ToString().Equals(CommandStatus.Failure.ToString()) ||
+                                                    lastUserRequest.Status.ToString().Equals(CommandStatus.Unknown.ToString())
+                             ))
+                    {
+                        var lastSuccessRequests = userRequestGroup.Value.Where(x => x.Status.ToString().Equals(CommandStatus.Success.ToString())).Last();
+                        <td>
+                            <a href='@Url.Action("DownloadResponse", "Home", new { guid = lastSuccessRequests.Guid, model=Model})'>
+                                <span class="oi oi-data-transfer-download"></span>
+                            </a>
+                        </td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                </tr>
+
+                // Render sub-table in accordion
+                <tr>
+                    <td colspan="8" class="hiddenRow">
+                        <div class="accordian-body collapse" id=@rowId>
+                            <table class="table table-borderless subtable">
+                                <thead style="visibility: collapse">
+                                    <tr>
+                                        <th style="width: 5%"></th>
+                                        <th style="width: 20%">Uploaded</th>
+                                        <th style="width: 20%">File Name</th>
+                                        <th style="width: 12.5%">Type</th>
+                                        <th style="width: 12.5%">Site</th>
+                                        <th style="width: 10%">Year</th>
+                                        <th style="width: 10%">Status</th>
+                                        <th style="width: 10%">Results</th>
+                                    </tr>
+                                </thead>
+
+                                @foreach (var userRequest in userRequestGroup.Value)
+                                {
+                                    <tr class="history-data">
+                                        <td></td>
+                                        <td></td>
+                                        <td>@userRequest.InputFileName</td>
+                                        <td>@UserRequest.PascalCaseToHumanCase(userRequest.RequestSubType)</td>
+                                        <td>@userRequest.Site</td>
+                                        <td>@userRequest.Year</td>
+                                        <td>@userRequest.Status.ToString()</td>
+                                        @if (userRequest.Status.ToString().Equals(CommandStatus.Success.ToString()))
+                                        {
+                                        <td>
+                                                <a href='@Url.Action("DownloadResponse", "Home", new { guid = userRequest.Guid, model=Model})'>
+                                        <span class="oi oi-data-transfer-download"></span>
+                                        </a>
+                                        </td>
+                                        }
+                                        else
+                                        {
+                                        <td></td>
+                                        }
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
